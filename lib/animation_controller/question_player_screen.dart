@@ -8,7 +8,7 @@ class QuestionPlayerScreen extends StatefulWidget {
   final VoidCallback onComplete;
 
   const QuestionPlayerScreen({Key key, this.questions, this.onComplete})
-    : super(key: key);
+      : super(key: key);
 
   @override
   _QuestionPlayerScreenState createState() => _QuestionPlayerScreenState();

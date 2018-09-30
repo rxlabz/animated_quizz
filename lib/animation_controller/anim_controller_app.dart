@@ -21,12 +21,11 @@ class AnimControllerApp extends StatelessWidget {
   }
 
   Widget _questionScreenBuilder(BuildContext context) =>
-    QuestionPlayerScreen(questions: questions, onComplete: _onComplete);
+      QuestionPlayerScreen(questions: questions, onComplete: _onComplete);
 
-  Widget _homeBuilder(BuildContext context) =>
-    HomeScreen(
-      onStart: _onStart,
-    );
+  Widget _homeBuilder(BuildContext context) => HomeScreen(
+        onStart: _onStart,
+      );
 
   void _onStart() {
     navKey.currentState.pushNamed('/question');
@@ -46,9 +45,9 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: onStart,
-        icon: Icon(Icons.play_arrow),
-        label: Text('Start')),
+          onPressed: onStart,
+          icon: Icon(Icons.play_arrow),
+          label: Text('Start')),
       body: Center(
         child: Text('home'),
       ),
