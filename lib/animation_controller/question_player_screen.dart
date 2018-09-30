@@ -5,8 +5,10 @@ import 'question_view.dart';
 
 class QuestionPlayerScreen extends StatefulWidget {
   final List<Question<String, String>> questions;
+  final VoidCallback onComplete;
 
-  const QuestionPlayerScreen({Key key, this.questions}) : super(key: key);
+  const QuestionPlayerScreen({Key key, this.questions, this.onComplete})
+    : super(key: key);
 
   @override
   _QuestionPlayerScreenState createState() => _QuestionPlayerScreenState();
@@ -60,7 +62,10 @@ class _QuestionPlayerScreenState extends State<QuestionPlayerScreen> {
     print('_QuestionPlayerScreenState._onFadeoutComplete... ');
     setState(() {
       checked = false;
-      if (questionIndex == widget.questions.length - 1) return;
+      if (questionIndex == widget.questions.length - 1) {
+        widget.onComplete();
+        return;
+      }
 
       questionIndex += 1;
     });
