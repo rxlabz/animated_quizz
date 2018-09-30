@@ -11,18 +11,18 @@ const Q3 = "Quelle est la capitale de la France ?";
 const PROPS3 = <String>['Paris', 'Rome', 'Madrid', 'Londres'];
 
 const questions = [
-  Question(
+  Question<String, String>(
     label: Q1,
     propositions: PROPS1,
     solution: [1, 2],
   ),
-  Question(
+  Question<String, String>(
     label: Q2,
     propositions: PROPS2,
     solution: [1, 2],
     allowMultipleSelection: false,
   ),
-  Question(
+  Question<String, String>(
     label: Q3,
     propositions: PROPS3,
     solution: [1, 2],
