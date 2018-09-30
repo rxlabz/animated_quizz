@@ -8,7 +8,7 @@ import '../question.dart';
 import '../utils.dart';
 
 class AnimatedQuestionScreen<Q, T> extends StatefulWidget {
-  final MultipleChoice question;
+  final Question question;
 
   final VoidCallback onComplete;
 
@@ -53,7 +53,7 @@ class _AnimatedQuestionScreenState<Q, T> extends State<AnimatedQuestionScreen> {
     return Scaffold(
       backgroundColor: Color(0xFFAACC99),
       body: QuestionView<Q, T>(
-          question: widget.question.question,
+          question: widget.question.label,
           propositions: widget.question.propositions,
           onSelectionChanged: _onSelectionChanged,
           complete: complete),
