@@ -31,8 +31,28 @@ class AnimControllerApp extends StatelessWidget {
     navKey.currentState.pushNamed('/question');
   }
 
-  void _onComplete() {
-    navKey.currentState.pushNamed('/home');
+  void _onComplete(double score) {
+    navKey.currentState.pushReplacement(
+        MaterialPageRoute(builder: (c) => _buildResult(c, score)));
+  }
+
+  Widget _buildResult(BuildContext context, double score) {
+    final style = Theme.of(context).textTheme.headline;
+    return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+          onPressed: _backHome, icon: Icon(Icons.close), label: Text('Close')),
+      body: Center(
+        child: Text(
+          'Score : ${score.toStringAsFixed(2)}%',
+          style: style,
+        ),
+      ),
+    );
+  }
+
+  void _backHome() {
+    //navKey.currentState.popUntil(ModalRoute.withName('/home'));
+    navKey.currentState.pop();
   }
 }
 

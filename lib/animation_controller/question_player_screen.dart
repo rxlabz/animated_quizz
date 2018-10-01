@@ -1,4 +1,5 @@
 import 'package:animated_qcm/utils.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../question.dart';
@@ -6,7 +7,7 @@ import 'question_view.dart';
 
 class QuestionPlayerScreen extends StatefulWidget {
   final List<Question<String, String>> questions;
-  final VoidCallback onComplete;
+  final ValueChanged<double> onComplete;
 
   const QuestionPlayerScreen({Key key, this.questions, this.onComplete})
       : super(key: key);
@@ -20,24 +21,49 @@ class _QuestionPlayerScreenState extends State<QuestionPlayerScreen> {
 
   final List<String> selection = [];
 
+  ItemStatus questionStatus;
+
   int questionIndex;
 
-  bool checked = false;
+  bool checked;
+
+  int _score;
 
   bool get complete => questionIndex + 1 < widget.questions.length;
 
   Question get currentQuestion => widget.questions[questionIndex];
 
+  Color get _backgroundColor {
+    Color color;
+    switch (questionStatus) {
+      case ItemStatus.none:
+        color = Color(0xffeeedf2);
+        break;
+      case ItemStatus.correct:
+        color = Colors.lime;
+        break;
+      case ItemStatus.incorrect:
+        color = Colors.deepOrangeAccent;
+        break;
+    }
+    return color;
+  }
+
+  double get _finalScore => _score / widget.questions.length * 100;
+
   @override
   void initState() {
     super.initState();
     questionIndex = 0;
+    _score = 0;
+    checked = false;
+    questionStatus = ItemStatus.none;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffeeedf2),
+      backgroundColor: _backgroundColor,
       floatingActionButton: _buildFAB(),
       body: SafeArea(
         bottom: false,
@@ -73,19 +99,19 @@ class _QuestionPlayerScreenState extends State<QuestionPlayerScreen> {
   }
 
   void _onNext() {
-    print('_QuestionPlayerScreenState._onNext... ');
     setState(() {
       pageKey.currentState.reverse();
     });
   }
 
   void _onFadeoutComplete() {
-    print('_QuestionPlayerScreenState._onFadeoutComplete... ');
     setState(() {
       selection.clear();
+      questionStatus = ItemStatus.none;
       checked = false;
+
       if (questionIndex == widget.questions.length - 1) {
-        widget.onComplete();
+        widget.onComplete(_finalScore);
         return;
       }
 
@@ -94,7 +120,16 @@ class _QuestionPlayerScreenState extends State<QuestionPlayerScreen> {
   }
 
   void _validate() {
+    final isCorrect = listEquals(
+        currentQuestion.solution.toList(growable: false)..sort(),
+        selection
+            .map((p) =>
+                currentQuestion.propositions.toList(growable: false).indexOf(p))
+            .toList(growable: false)
+              ..sort());
     setState(() {
+      questionStatus = isCorrect ? ItemStatus.correct : ItemStatus.incorrect;
+      _score += isCorrect ? 1 : 0;
       checked = true;
     });
   }

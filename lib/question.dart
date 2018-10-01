@@ -19,13 +19,13 @@ const questions = [
   Question<String, String>(
     label: Q2,
     propositions: PROPS2,
-    solution: [1, 2],
+    solution: [2],
     allowMultipleSelection: false,
   ),
   Question<String, String>(
     label: Q3,
     propositions: PROPS3,
-    solution: [1, 2],
+    solution: [0],
     allowMultipleSelection: false,
   ),
 ];
