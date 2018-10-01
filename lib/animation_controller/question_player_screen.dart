@@ -1,3 +1,4 @@
+import 'package:animated_qcm/utils.dart';
 import 'package:flutter/material.dart';
 
 import '../question.dart';
@@ -15,13 +16,17 @@ class QuestionPlayerScreen extends StatefulWidget {
 }
 
 class _QuestionPlayerScreenState extends State<QuestionPlayerScreen> {
-  int questionIndex;
-
   final pageKey = GlobalKey<AnimatedQuestionWidgetState>();
+
+  final List<String> selection = [];
+
+  int questionIndex;
 
   bool checked = false;
 
   bool get complete => questionIndex + 1 < widget.questions.length;
+
+  Question get currentQuestion => widget.questions[questionIndex];
 
   @override
   void initState() {
@@ -37,18 +42,34 @@ class _QuestionPlayerScreenState extends State<QuestionPlayerScreen> {
       body: SafeArea(
         bottom: false,
         child: AnimatedQuestionWidget(
-          key: pageKey,
-          question: widget.questions[questionIndex],
-          checked: checked,
-          onValidate: _onQuestionValidated,
-          onFadeoutComplete: _onFadeoutComplete,
-        ),
+            key: pageKey,
+            delay: questionIndex == 0 ? duration500 : Duration.zero,
+            question: widget.questions[questionIndex],
+            checked: checked,
+            onValidate: _onQuestionValidated,
+            onFadeoutComplete: _onFadeoutComplete,
+            selection: selection,
+            onSelection: _onSelection),
       ),
     );
   }
 
   void _onQuestionValidated() {
     print('_QuestionPlayerScreenState._onQuestionValidated... ');
+  }
+
+  void _onSelection(String prop) {
+    setState(() {
+      if (!currentQuestion.allowMultipleSelection)
+        selection
+          ..clear()
+          ..add(prop);
+      else if (selection.contains(prop)) {
+        selection.remove(prop);
+      } else {
+        selection.add(prop);
+      }
+    });
   }
 
   void _onNext() {
@@ -61,6 +82,7 @@ class _QuestionPlayerScreenState extends State<QuestionPlayerScreen> {
   void _onFadeoutComplete() {
     print('_QuestionPlayerScreenState._onFadeoutComplete... ');
     setState(() {
+      selection.clear();
       checked = false;
       if (questionIndex == widget.questions.length - 1) {
         widget.onComplete();
@@ -80,10 +102,12 @@ class _QuestionPlayerScreenState extends State<QuestionPlayerScreen> {
   Widget _buildFAB() {
     final buttonLabel = checked ? (complete ? 'Next' : 'End') : 'Validate';
     return FloatingActionButton.extended(
-        onPressed: checked ? _onNext : _validate,
+        onPressed:
+            selection.isNotEmpty ? (checked ? _onNext : _validate) : null,
         icon: Icon(Icons.check),
-        backgroundColor:
-            checked ? Colors.lightGreen.shade600 : Colors.cyan.shade600,
+        backgroundColor: selection.isNotEmpty
+            ? (checked ? Colors.lightGreen.shade600 : Colors.cyan.shade600)
+            : Colors.grey.shade200,
         label: Text(buttonLabel));
   }
 }

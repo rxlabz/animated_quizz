@@ -40,22 +40,30 @@ class QuestionBloc extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return roundedContainer(child: Text(question));
+    final style = Theme.of(context).textTheme.title;
+    return roundedContainer(child: Text(question, style: style));
   }
 }
 
 class PropBloc extends StatelessWidget {
   final ValueChanged<String> onSelection;
 
+  final bool selected;
   final String prop;
 
-  const PropBloc({Key key, @required this.prop, @required this.onSelection})
+  const PropBloc(
+      {Key key, @required this.prop, @required this.onSelection, this.selected})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final textColor = selected ? Colors.white : Colors.grey.shade800;
+    final style = Theme.of(context).textTheme.title.copyWith(color: textColor);
     return InkWell(
-      child: roundedContainer(child: Text(prop)),
+      child: roundedContainer(
+        child: Text(prop, style: style),
+        backgroundColor: selected ? Colors.blueGrey : Colors.white,
+      ),
       onTap: () => onSelection(prop),
     );
   }
