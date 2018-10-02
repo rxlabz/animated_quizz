@@ -37,3 +37,12 @@ double computeTextHeight({
   tPainter.layout(minWidth: width, maxWidth: width);
   return tPainter.height;
 }
+
+/// calcul la somme des valeurs d'un tableau entre 2 index ou total
+num sum({List<num> values, int startIndex = 0, int endIndex}) {
+  if (values.isEmpty) return 0;
+  endIndex = endIndex ?? values.length - 1;
+  return values
+      .sublist(startIndex, endIndex)
+      .fold(0, (previous, current) => previous + current);
+}

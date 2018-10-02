@@ -1,10 +1,12 @@
-import 'package:animated_qcm/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../question.dart';
+import '../utils.dart';
 import 'question_view.dart';
 
+/// widget d'affichage d'une série de [questions]
+/// renvoie le score(%) via [onComplete]
 class QuestionPlayerScreen extends StatefulWidget {
   final List<Question<String, String>> questions;
   final ValueChanged<double> onComplete;
@@ -17,10 +19,15 @@ class QuestionPlayerScreen extends StatefulWidget {
 }
 
 class _QuestionPlayerScreenState extends State<QuestionPlayerScreen> {
+  /// clé global du widget d'animation de la question
+  /// utilisé pour lancer l'animation de sortie avant de passer à une nouvelle
+  /// question
   final pageKey = GlobalKey<AnimatedQuestionWidgetState>();
 
+  /// selection de l'utilisateur
   final List<String> selection = [];
 
+  /// status de la question => [ItemStatus] none, correct, incorrect
   ItemStatus questionStatus;
 
   int questionIndex;
@@ -43,7 +50,7 @@ class _QuestionPlayerScreenState extends State<QuestionPlayerScreen> {
         color = Colors.lime;
         break;
       case ItemStatus.incorrect:
-        color = Colors.deepOrangeAccent;
+        color = Colors.amberAccent;
         break;
     }
     return color;
@@ -63,27 +70,45 @@ class _QuestionPlayerScreenState extends State<QuestionPlayerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _backgroundColor,
       floatingActionButton: _buildFAB(),
       body: SafeArea(
         bottom: false,
-        child: AnimatedQuestionWidget(
-            key: pageKey,
-            delay: questionIndex == 0 ? duration500 : Duration.zero,
-            question: widget.questions[questionIndex],
-            checked: checked,
-            onValidate: _onQuestionValidated,
-            onFadeoutComplete: _onFadeoutComplete,
-            selection: selection,
-            onSelection: _onSelection),
+        child: Stack(
+          children: <Widget>[
+            SizedBox.expand(
+                child: AnimatedContainer(
+              duration: duration500,
+              color: _backgroundColor,
+            )),
+            AnimatedQuestionWidget(
+                key: pageKey,
+                delay: questionIndex == 0 ? duration500 : duration150,
+                question: widget.questions[questionIndex],
+                checked: checked,
+                onFadeoutComplete: _onFadeoutComplete,
+                selection: selection,
+                onSelection: _onSelection),
+          ],
+        ),
       ),
     );
   }
 
-  void _onQuestionValidated() {
-    print('_QuestionPlayerScreenState._onQuestionValidated... ');
+  Widget _buildFAB() {
+    final buttonLabel = checked ? (complete ? 'Next' : 'End') : 'Validate';
+    return FloatingActionButton.extended(
+        onPressed:
+            selection.isNotEmpty ? (checked ? _onNext : _validate) : null,
+        icon: Icon(Icons.check),
+        backgroundColor: selection.isNotEmpty
+            ? (checked ? Colors.lightGreen.shade600 : Colors.pink.shade600)
+            : Colors.grey.shade200,
+        label: Text(buttonLabel));
   }
 
+  /// à la selection d'une proposition
+  /// remplace la selection si !allowMultipleSelection
+  /// sinon ajoute|supprime à la selection
   void _onSelection(String prop) {
     setState(() {
       if (!currentQuestion.allowMultipleSelection)
@@ -98,18 +123,21 @@ class _QuestionPlayerScreenState extends State<QuestionPlayerScreen> {
     });
   }
 
+  /// lancement de l'anim de sortie avant navigation
   void _onNext() {
     setState(() {
       pageKey.currentState.reverse();
     });
   }
 
+  /// à la fin de l'animation de sortie
   void _onFadeoutComplete() {
     setState(() {
       selection.clear();
       questionStatus = ItemStatus.none;
       checked = false;
 
+      // si toutes les questions ont été visualisées
       if (questionIndex == widget.questions.length - 1) {
         widget.onComplete(_finalScore);
         return;
@@ -119,30 +147,19 @@ class _QuestionPlayerScreenState extends State<QuestionPlayerScreen> {
     });
   }
 
+  /// vérifie si selection est égale à solution
   void _validate() {
-    final isCorrect = listEquals(
-        currentQuestion.solution.toList(growable: false)..sort(),
-        selection
-            .map((p) =>
-                currentQuestion.propositions.toList(growable: false).indexOf(p))
-            .toList(growable: false)
-              ..sort());
+    final solutions = currentQuestion.solution.toList(growable: false)..sort();
+    final userSelection = selection
+        .map((p) =>
+            currentQuestion.propositions.toList(growable: false).indexOf(p))
+        .toList(growable: false)
+          ..sort();
+    final isCorrect = listEquals(solutions, userSelection);
     setState(() {
       questionStatus = isCorrect ? ItemStatus.correct : ItemStatus.incorrect;
       _score += isCorrect ? 1 : 0;
       checked = true;
     });
-  }
-
-  Widget _buildFAB() {
-    final buttonLabel = checked ? (complete ? 'Next' : 'End') : 'Validate';
-    return FloatingActionButton.extended(
-        onPressed:
-            selection.isNotEmpty ? (checked ? _onNext : _validate) : null,
-        icon: Icon(Icons.check),
-        backgroundColor: selection.isNotEmpty
-            ? (checked ? Colors.lightGreen.shade600 : Colors.cyan.shade600)
-            : Colors.grey.shade200,
-        label: Text(buttonLabel));
   }
 }

@@ -33,15 +33,30 @@ class AnimatedBloc extends StatelessWidget {
   }
 }
 
-class QuestionBloc extends StatelessWidget {
-  final String question;
+class TextBloc extends StatelessWidget {
+  final String text;
+  final TextStyle style;
+  final double padding;
 
-  const QuestionBloc({Key key, this.question}) : super(key: key);
+  final Color backgroundColor;
+
+  const TextBloc(
+      {Key key,
+      @required this.text,
+      this.style,
+      this.padding,
+      this.backgroundColor})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).textTheme.title;
-    return roundedContainer(child: Text(question, style: style));
+    final textStyle = style != null ? style : Theme.of(context).textTheme.title;
+    return LayoutBuilder(builder: (context, constraints) {
+      return roundedContainer(
+          child: Text(text, style: textStyle),
+          backgroundColor: backgroundColor,
+          padding: padding);
+    });
   }
 }
 
@@ -50,20 +65,28 @@ class PropBloc extends StatelessWidget {
 
   final bool selected;
   final String prop;
+  final TextStyle style;
+  final double padding;
 
-  const PropBloc(
-      {Key key, @required this.prop, @required this.onSelection, this.selected})
-      : super(key: key);
+  const PropBloc({
+    Key key,
+    @required this.prop,
+    @required this.onSelection,
+    this.selected,
+    this.style,
+    this.padding,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final textColor = selected ? Colors.white : Colors.grey.shade800;
-    final style = Theme.of(context).textTheme.title.copyWith(color: textColor);
+    final _style =
+        (style ?? Theme.of(context).textTheme.title).copyWith(color: textColor);
     return InkWell(
       child: roundedContainer(
-        child: Text(prop, style: style),
-        backgroundColor: selected ? Colors.blueGrey : Colors.white,
-      ),
+          child: Text(prop, style: _style),
+          backgroundColor: selected ? Colors.cyan : Colors.white,
+          padding: padding),
       onTap: () => onSelection(prop),
     );
   }

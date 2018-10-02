@@ -7,13 +7,14 @@ import '../question.dart';
 import '../utils.dart';
 import 'ui_blocs.dart';
 
+const _hPaddingRatio = 20.0;
+
 class AnimatedQuestionWidget extends StatefulWidget {
   final Question question;
   final List<String> selection;
 
   final bool checked;
 
-  final VoidCallback onValidate;
   final VoidCallback onFadeoutComplete;
   final ValueChanged<String> onSelection;
 
@@ -24,7 +25,6 @@ class AnimatedQuestionWidget extends StatefulWidget {
     this.delay = Duration.zero,
     this.question,
     this.checked,
-    this.onValidate,
     this.onFadeoutComplete,
     this.selection,
     this.onSelection,
@@ -59,9 +59,13 @@ class AnimatedQuestionWidgetState extends State<AnimatedQuestionWidget>
 
   final forwardDuration = Duration(seconds: 1, milliseconds: 500);
 
+  final double questionBottomMargin = 24.0;
+
+  final double blocPadding = 12.0;
+
   void reverse() {
     _animController
-      ..duration = duration500
+      ..duration = duration1s
       ..addStatusListener(onReversed)
       ..reverse();
   }
@@ -88,15 +92,10 @@ class AnimatedQuestionWidgetState extends State<AnimatedQuestionWidget>
     super.initState();
     _animController =
         AnimationController(vsync: this, duration: forwardDuration);
-
-    _initQuestionAnim();
-
-    _initPropsAnims();
-
     Future.delayed(widget.delay, _animController.forward);
   }
 
-  void _initQuestionAnim() {
+  void _initQuestionAnim(double textHeight) {
     questionPosition = Tween(begin: questionTopStart, end: questionTopEnd)
         .animate(CurvedAnimation(
             parent: _animController,
@@ -106,15 +105,32 @@ class AnimatedQuestionWidgetState extends State<AnimatedQuestionWidget>
         curve: Interval(0.0, 0.25, curve: Curves.ease)));
   }
 
-  void _initPropsAnims() {
-    propositionPositions = enumerate(widget.question.propositions)
-        .map((item) => _buildAnimation(
-              begin: offsetYStart + (item.index * 60.0),
-              end: offsetYEnd + (item.index * 40.0),
-              intervalBegin: intervals[item.index + 1][0],
-              intervalEnd: intervals[item.index + 1][1],
-            ))
-        .toList(growable: false);
+  void _initPropsAnims(
+      double questionHeight, TextStyle style, double deviceWidth) {
+    final propositionHeights = widget.question.propositions.map((p) {
+      final height =
+          computeTextHeight(text: p, style: style, width: deviceWidth) +
+              blocPadding * 2 +
+              blocPadding / 2;
+      return height;
+    }).toList(growable: false);
+
+    propositionPositions = enumerate(widget.question.propositions).map((item) {
+      final propositionTopOffset = questionHeight +
+          questionTopEnd +
+          blocPadding * 2 +
+          questionBottomMargin;
+
+      return _buildAnimation(
+        begin: propositionTopOffset +
+            sum(values: propositionHeights, endIndex: item.index) +
+            150,
+        end: propositionTopOffset +
+            sum(values: propositionHeights, endIndex: item.index),
+        intervalBegin: intervals[item.index + 1][0],
+        intervalEnd: intervals[item.index + 1][1],
+      );
+    }).toList(growable: false);
     propositionOpacities = enumerate(widget.question.propositions)
         .map((item) => _buildAnimation(
               begin: 0.0,
@@ -151,39 +167,60 @@ class AnimatedQuestionWidgetState extends State<AnimatedQuestionWidget>
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final textStyle = Theme.of(context).textTheme.title;
     return AnimatedBuilder(
       animation: _animController,
-      builder: _buildQuestionView,
+      builder: (_, __) => _buildQuestionView(textStyle),
     );
   }
 
-  Widget _buildQuestionView(BuildContext context, Widget child) {
+  Widget _buildQuestionView(TextStyle style) {
     return Stack(
-      children: _buildAnimatedWidgets(),
+      children: _buildAnimatedWidgets(style),
     );
   }
 
-  _buildAnimatedWidgets() {
+  List<Widget> _buildAnimatedWidgets(TextStyle style) {
+    final question = widget.question.label;
+    final size = MediaQuery.of(context).size;
+    final hPadding = size.width / _hPaddingRatio;
+
+    final blocWidth = size.width - hPadding * 2 - blocPadding * 2;
+    final questionHeight =
+        computeTextHeight(text: question, style: style, width: blocWidth);
+    _initQuestionAnim(questionHeight);
+    _initPropsAnims(questionHeight, style, blocWidth);
+
     final props = widget.question.propositions.toList();
+    final textStyle = Theme.of(context).textTheme.title;
     return <Widget>[
       AnimatedBloc(
           opacity: questionOpacity.value,
-          left: 24.0,
-          right: 24.0,
+          left: hPadding,
+          right: hPadding,
           top: questionPosition.value,
-          child: QuestionBloc(question: widget.question.label)),
+          child: TextBloc(
+            text: question,
+            style: textStyle.copyWith(color: Colors.white),
+            padding: blocPadding,
+            backgroundColor: Colors.blueGrey,
+          )),
     ]..addAll(enumerate(props).map((p) {
         final prop = props[p.index];
         return AnimatedBloc(
-            opacity: propositionOpacities[p.index].value,
-            left: 24.0,
-            right: 24.0,
-            top: propositionPositions[p.index].value,
-            child: PropBloc(
-              prop: prop,
-              selected: widget.selection.contains(prop),
-              onSelection: widget.onSelection,
-            ));
+          opacity: propositionOpacities[p.index].value,
+          left: hPadding,
+          right: hPadding,
+          top: propositionPositions[p.index].value,
+          child: PropBloc(
+            prop: prop,
+            selected: widget.selection.contains(prop),
+            padding: blocPadding,
+            style: textStyle,
+            onSelection: widget.onSelection,
+          ),
+        );
       }).toList(growable: false));
   }
 }
