@@ -1,31 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:quiver/time.dart';
 
-const duration1s = Duration(seconds: 1);
-const duration150 = Duration(milliseconds: 150);
-const duration300 = Duration(milliseconds: 300);
-const duration500 = Duration(milliseconds: 300);
-
-const margin32 = EdgeInsets.all(32.0);
-const margin16 = EdgeInsets.all(16.0);
-const margin8 = EdgeInsets.all(8.0);
-const margin4 = EdgeInsets.all(4.0);
-
-BoxDecoration rounded(Color color, {double radius = 12.0}) => BoxDecoration(
-      color: color,
-      borderRadius: BorderRadius.circular(radius),
-    );
-
-Widget roundedContainer(
-        {@required Widget child,
-        Color backgroundColor = Colors.white,
-        double padding = 8.0}) =>
-    AnimatedContainer(
-      duration: duration150,
-      decoration: rounded(backgroundColor),
-      padding: EdgeInsets.all(padding),
-      child: child,
-    );
-
+///
+/// calcul la taille d'un Text en fonction de sa police et largeur
+///
 double computeTextHeight({
   String text,
   TextStyle style,
@@ -38,11 +16,27 @@ double computeTextHeight({
   return tPainter.height;
 }
 
+///
 /// calcul la somme des valeurs d'un tableau entre 2 index ou total
+///
 num sum({List<num> values, int startIndex = 0, int endIndex}) {
   if (values.isEmpty) return 0;
   endIndex = endIndex ?? values.length - 1;
   return values
       .sublist(startIndex, endIndex)
       .fold(0, (previous, current) => previous + current);
+}
+
+///
+/// construit un tableau d'intervals réguliers sur 1second
+/// en fonction d'un nombre de pas
+///
+List<Interval> buildTimeline(int stepCount, {Curve curve = Curves.ease}) {
+  final stepDuration = aSecond * (1 / stepCount);
+  final List<Interval> timeline = List.generate(stepCount, (value) {
+    return Interval(value * stepDuration.inMilliseconds / 1000,
+        (value + 1) * stepDuration.inMilliseconds / 1000,
+        curve: curve);
+  });
+  return timeline;
 }

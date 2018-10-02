@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'animation_controller/anim_controller_app.dart';
+import 'data.dart';
+import 'quizz_app.dart';
 
-void main() => runApp(AnimControllerApp());
-//void main() => runApp(new AnimatedItemsApp());
+void main() => runApp(QuizzDemoApp(questions));
