@@ -3,7 +3,7 @@ import 'package:animated_qcm/model.dart';
 const mockQuestions = [
   Question(
     label: "Qui ?",
-    propositions: [
+    options: [
       Option('a', correct: true),
       Option('b', correct: false),
       Option('c', correct: false),
@@ -13,7 +13,7 @@ const mockQuestions = [
   ),
   Question(
     label: "Quand ?",
-    propositions: [
+    options: [
       Option('1', correct: false),
       Option('2', correct: true),
       Option('3', correct: true),

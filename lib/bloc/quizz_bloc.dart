@@ -23,7 +23,7 @@ class QuizzBloc {
     _quizzStateStreamer = BehaviorSubject<QuizzState>(seedValue: state);
 
     _selectionSubscription =
-        _newSelectionStreamer.stream.listen(_onPropositionSelection);
+        _newSelectionStreamer.stream.listen(_onOptionSelection);
 
     _validationSubscription = _validationStreamer.stream.listen(_onValidation);
 
@@ -93,10 +93,10 @@ class QuizzBloc {
 
   /*-------------------------------------*/
 
-  PropositionStatus currentQuestionStatus = PropositionStatus.none;
+  OptionStatus currentQuestionStatus = OptionStatus.none;
 
   bool get currentQuestionValidated =>
-      currentQuestionStatus != PropositionStatus.none;
+      currentQuestionStatus != OptionStatus.none;
 
   QuizzState initState(int currentIndex) {
     _quizzState = QuizzState(
@@ -107,7 +107,7 @@ class QuizzBloc {
       questionCount: questions.length,
       pageStatus: ItemStatus.none,
       score: 0,
-      options: questions[currentIndex].propositions,
+      options: questions[currentIndex].options,
     );
 
     return _quizzState;
@@ -124,19 +124,23 @@ class QuizzBloc {
     _goToQuestionSubscription.cancel();
   }
 
-  void _onPropositionSelection(Option<String> proposition) {
+  void _onOptionSelection(Option<String> option) {
     List<Option<String>> userSelection = _quizzState.selection;
-    if (!_quizzState.currentQuestion.allowMultipleSelection) {
+    if (!_quizzState.currentQuestion.allowMultipleSelection)
       userSelection
         ..clear()
-        ..add(proposition);
-    } else if (userSelection.contains(proposition)) {
-      userSelection.remove(proposition);
-    } else {
-      userSelection.add(proposition);
-    }
+        ..add(option);
+    else if (userSelection.contains(option))
+      userSelection.remove(option);
+    else
+      userSelection.add(option);
 
     _quizzState = _quizzState.copyWith(selection: userSelection);
+    if (userSelection.isEmpty)
+      _quizzState = _quizzState.copyWith(
+          options: _quizzState.options
+              .map((option) => option.copyWith(selected: false))
+              .toList(growable: false));
     _quizzStateStreamer.add(_quizzState);
   }
 
@@ -171,7 +175,7 @@ class QuizzBloc {
       _quizzState = _quizzState.copyWith(
         currentIndex: currentIndex,
         currentQuestion: question,
-        options: question?.propositions ?? [],
+        options: question?.options ?? [],
         validated: false,
         selection: [],
         pageStatus: ItemStatus.none,
@@ -189,7 +193,7 @@ class QuizzBloc {
       questionCount: questions.length,
       pageStatus: ItemStatus.none,
       score: 0,
-      options: questions[0].propositions,
+      options: questions[0].options,
     );
     _quizzStateStreamer.add(_quizzState);
   }

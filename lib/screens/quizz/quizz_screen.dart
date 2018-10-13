@@ -23,22 +23,26 @@ class QuizzPlayerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloc = QuizzBlocProvider.of(context);
+    final theme = QuizzThemeProvider.of(context);
     return StreamBuilder(
         stream: bloc.quizzState,
         builder: (BuildContext context, AsyncSnapshot<QuizzState> snapshot) {
           if (!snapshot.hasData)
-            return Center(
-                child: CircularProgressIndicator(backgroundColor: Colors.cyan));
+            return Material(
+              child: Center(
+                  child: CircularProgressIndicator(
+                      backgroundColor: theme.spinnerColor)),
+            );
 
           final quizz = snapshot.data;
           return Scaffold(
             floatingActionButton: _buildFAB(
-              validated: quizz.validated,
-              isLast: quizz.isLast,
-              selection: quizz.selection,
-              onValidate: () => bloc.validate.add(null),
-              onNext: _onNext,
-            ),
+                validated: quizz.validated,
+                isLast: quizz.isLast,
+                selection: quizz.selection,
+                onValidate: () => bloc.validate.add(null),
+                onNext: _onNext,
+                theme: theme),
             body: SafeArea(
               bottom: false,
               child: Stack(
@@ -46,10 +50,12 @@ class QuizzPlayerScreen extends StatelessWidget {
                   buildAnimatedBackground(quizz.pageStatus),
                   AnimatedQuestionWidget(
                     key: pageKey,
-                    delay: quizz.currentIndex == 0 ? duration500 : duration150,
+                    delay: theme.animationDelay(
+                      isFirst: quizz.currentIndex == 0,
+                    ),
                     question: quizz.currentQuestion,
                     options: quizz.options,
-                    checked: quizz.validated,
+                    validated: quizz.validated,
                     onFadeoutComplete: () => bloc.jump(1),
                     selection: quizz.selection,
                     onSelection: bloc.newSelection,
@@ -61,21 +67,21 @@ class QuizzPlayerScreen extends StatelessWidget {
         });
   }
 
-  Widget _buildFAB<T>({
-    bool validated,
-    bool isLast,
-    List<T> selection,
-    VoidCallback onValidate,
-    VoidCallback onNext,
-  }) {
+  Widget _buildFAB<T>(
+      {bool validated,
+      bool isLast,
+      List<T> selection,
+      VoidCallback onValidate,
+      VoidCallback onNext,
+      QuizzTheme theme}) {
     final buttonLabel = validated ? (!isLast ? 'Next' : 'End') : 'Validate';
     return FloatingActionButton.extended(
         onPressed:
             selection.isNotEmpty ? (validated ? onNext : onValidate) : null,
         icon: Icon(Icons.check),
         backgroundColor: selection.isNotEmpty
-            ? (validated ? Colors.lightGreen.shade600 : Colors.pink.shade600)
-            : Colors.grey.shade300,
+            ? (validated ? theme.fabValidatedColor : theme.fabColor)
+            : theme.fabDisabledColor,
         label: Text(buttonLabel));
   }
 }

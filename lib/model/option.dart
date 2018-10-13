@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 
-enum PropositionStatus {
+enum OptionStatus {
   none, // before validation
+  selected, // selected not validated
   correctAndSelected, // correct & selected
   correctButNotSelected, // correct but not selected
   incorrectButSelected, // incorrect but selected
@@ -13,14 +14,14 @@ class Option<T> {
   final bool selected;
   final bool correct;
   final bool validated;
-  PropositionStatus get status {
+  OptionStatus get status {
     if (validated) {
-      if (correct && selected) return PropositionStatus.correctAndSelected;
-      if (correct && !selected) return PropositionStatus.correctButNotSelected;
-      if (!correct && selected) return PropositionStatus.incorrectButSelected;
-      if (!correct && !selected) return PropositionStatus.incorrectNotSelected;
+      if (correct && selected) return OptionStatus.correctAndSelected;
+      if (correct && !selected) return OptionStatus.correctButNotSelected;
+      if (!correct && selected) return OptionStatus.incorrectButSelected;
+      if (!correct && !selected) return OptionStatus.incorrectNotSelected;
     }
-    return PropositionStatus.none;
+    return selected ? OptionStatus.selected : OptionStatus.none;
   }
 
   const Option(

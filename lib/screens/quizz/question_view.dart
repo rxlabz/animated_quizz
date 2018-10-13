@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:animated_qcm/model.dart';
-import 'package:animated_qcm/screens/quizz/animated_ui_blocs.dart';
+import 'package:animated_qcm/screens/quizz/quizz_widgets.dart';
 import 'package:animated_qcm/theme.dart';
 import 'package:animated_qcm/utils.dart';
 import 'package:flutter/foundation.dart';
@@ -18,7 +18,7 @@ class AnimatedQuestionWidget extends StatefulWidget {
   final Question question;
   final List<Option<String>> selection;
 
-  final bool checked;
+  final bool validated;
 
   final VoidCallback onFadeoutComplete;
   final ValueChanged<Option<String>> onSelection;
@@ -32,7 +32,7 @@ class AnimatedQuestionWidget extends StatefulWidget {
     @required this.question,
     @required this.options,
     this.delay = Duration.zero,
-    this.checked,
+    this.validated,
     this.onFadeoutComplete,
     this.selection,
     this.onSelection,
@@ -86,7 +86,7 @@ class AnimatedQuestionWidgetState extends State<AnimatedQuestionWidget>
         if (_animController != null) _animController.forward();
       });
     }
-    if (oldWidget.checked != widget.checked) {}
+    if (oldWidget.validated != widget.validated) {}
   }
 
   @override
@@ -116,7 +116,7 @@ class AnimatedQuestionWidgetState extends State<AnimatedQuestionWidget>
   void _initPropsAnims(double questionHeight, TextStyle style,
       double deviceWidth, List<Interval> intervals) {
     // liste des hauteurs des propositions
-    final propositionHeights = widget.question.propositions
+    final propositionHeights = widget.question.options
         .map((p) =>
             computeTextHeight(text: p.label, style: style, width: deviceWidth) +
             blocPadding * 2 +
@@ -124,7 +124,7 @@ class AnimatedQuestionWidgetState extends State<AnimatedQuestionWidget>
         .toList(growable: false);
 
     // construit une liste d'objets d'anims de la position de chaque proposition
-    propositionPositions = enumerate(widget.question.propositions).map((item) {
+    propositionPositions = enumerate(widget.question.options).map((item) {
       final propositionTopOffset = questionHeight +
           questionTopEnd +
           blocPadding * 2 +
@@ -142,7 +142,7 @@ class AnimatedQuestionWidgetState extends State<AnimatedQuestionWidget>
     }).toList(growable: false);
 
     // construit une liste d'objets d'anims de l"opacité de chaque proposition
-    propositionOpacities = enumerate(widget.question.propositions)
+    propositionOpacities = enumerate(widget.question.options)
         .map((item) => _buildAnimation(
               begin: 0.0,
               end: 1.0,
@@ -172,59 +172,76 @@ class AnimatedQuestionWidgetState extends State<AnimatedQuestionWidget>
   }
 
   @override
-  Widget build(BuildContext context) {
-    final textStyle = Theme.of(context).textTheme.title;
-    return AnimatedBuilder(
-        animation: _animController,
-        builder: (_, __) => Stack(
-              children: _buildAnimatedWidgets(textStyle),
-            ));
-  }
+  Widget build(BuildContext context) => AnimatedBuilder(
+      animation: _animController,
+      builder: (_, __) => Stack(
+            children: _buildAnimatedWidgets(),
+          ));
 
-  List<Widget> _buildAnimatedWidgets(TextStyle style) {
+  List<Widget> _buildAnimatedWidgets() {
     final question = widget.question;
-    final size = MediaQuery.of(context).size;
-    final hPadding = size.width / _hPaddingRatio;
-    final props = widget.options.toList();
-    final textStyle = style ?? Theme.of(context).textTheme.title;
+    final props = widget.options;
 
-    _initAnimations(props, size, hPadding, question, style);
+    final size = MediaQuery.of(context).size;
+    final horizontalPadding = size.width / _hPaddingRatio;
+
+    final theme = QuizzThemeProvider.of(context);
+    final defaultTextStyle = theme.defaultTextStyle;
+
+    _initAnimations(props, size, horizontalPadding, question, defaultTextStyle);
 
     return <Widget>[
-      _buildQuestion(hPadding, question.label, textStyle),
+      _buildQuestion(horizontalPadding, question.label, theme),
     ]..addAll(
-        _buildPropositions(props, hPadding, textStyle),
+        _buildPropositions(props, horizontalPadding),
       );
   }
 
-  void _initAnimations(List props, Size size, double hPadding,
-      Question question, TextStyle style) {
+  void _initAnimations(
+    List props,
+    Size size,
+    double horizontalPadding,
+    Question question,
+    TextStyle style,
+  ) {
     final timeline = buildTimeline(props.length + 1);
-    final blocWidth = size.width - hPadding * 2 - blocPadding * 2;
+    final blocWidth = size.width - horizontalPadding * 2 - blocPadding * 2;
+
     final questionHeight =
         computeTextHeight(text: question.label, style: style, width: blocWidth);
+
     _initQuestionAnim(interval: timeline[0]);
-    _initPropsAnims(questionHeight, style, blocWidth, timeline..removeAt(0));
+    _initPropsAnims(questionHeight, style, blocWidth,
+        timeline.getRange(1, props.length + 1).toList());
   }
 
   AnimatedBloc _buildQuestion(
-      double hPadding, String question, TextStyle textStyle) {
+    double horizontalPadding,
+    String question,
+    QuizzTheme theme,
+  ) {
     return AnimatedBloc(
         opacity: questionOpacity.value,
-        left: hPadding,
-        right: hPadding,
+        left: horizontalPadding,
+        right: horizontalPadding,
         top: questionPosition.value,
         child: TextBloc(
           text: question,
-          style: textStyle.copyWith(
-              color: widget.checked ? Colors.grey.shade700 : Colors.white),
+          style: widget.validated
+              ? theme.questionValidatedTextStyle
+              : theme.questionTextStyle,
           padding: blocPadding,
-          backgroundColor: widget.checked ? Colors.white : Colors.blueGrey,
+          backgroundColor: widget.validated
+              ? theme.questionValidatedBackgroundColor
+              : theme.questionBackgroundColor,
         ));
   }
 
   List<AnimatedBloc> _buildPropositions(
-      List<Option<String>> props, double hPadding, TextStyle textStyle) {
+    List<Option<String>> props,
+    double hPadding,
+  ) {
+    final theme = QuizzThemeProvider.of(context);
     return enumerate(props).map((p) {
       final prop = props[p.index];
       return AnimatedBloc(
@@ -232,32 +249,17 @@ class AnimatedQuestionWidgetState extends State<AnimatedQuestionWidget>
         left: hPadding,
         right: hPadding,
         top: propositionPositions[p.index].value,
-        child: PropBloc(
+        child: OptionBloc(
           option: prop,
           label: prop.label,
           padding: blocPadding,
-          style: textStyle,
+          style: theme.optionStyle.textStyle,
           onSelection: widget.onSelection,
+          color: theme.optionStyle.getColor(prop.status),
+          backgroundColor: theme.optionStyle.getBackgroundColor(prop.status),
+          opacity: theme.optionStyle.getOpacity(prop.status),
         ),
       );
     }).toList(growable: false);
   }
-
-  /*PropositionStatus _getPropStatus(IndexedValue prop) {
-    if (!widget.checked)
-      return PropositionStatus.none;
-    else if (solutionContains(prop.index)) // si réponse attendu
-      return _isPropSelected(prop.value)
-          ? PropositionStatus.correctAndSelected
-          : PropositionStatus.correctButNotSelected;
-    else if (_isPropSelected(prop.value))
-      return PropositionStatus.incorrectButSelected;
-    else if (!solutionContains(prop.index))
-      return PropositionStatus.incorrectNotSelected;
-    return PropositionStatus.none;
-  }
-
-  bool _isPropSelected(String prop) => widget.selection.contains(prop);
-
-  bool solutionContains(int index) => widget.question.solution.contains(index);*/
 }

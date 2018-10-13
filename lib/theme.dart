@@ -1,6 +1,9 @@
+import 'package:animated_qcm/model.dart';
 import 'package:flutter/material.dart';
 
 import 'model/question.dart';
+
+export 'quizz_theme_provider.dart';
 
 const duration1s = Duration(seconds: 1);
 const duration150 = Duration(milliseconds: 150);
@@ -74,19 +77,134 @@ class ThemeProvider extends InheritedWidget {
 class QuizzTheme {
   final TextStyle defaultTextStyle;
 
-  final TextStyle questionTextStyle;
+  final OptionStyle optionStyle;
+
   final Color questionBackgroundColor;
   final Color questionColor;
+  final Color questionValidatedColor;
+  final Color questionValidatedBackgroundColor;
 
-  final Color optionBackgroundColor;
-  final Color optionColor;
+  final Color fabColor;
+  final Color fabValidatedColor;
+  final Color fabDisabledColor;
+
+  final Color spinnerColor;
+
+  TextStyle get questionTextStyle =>
+      defaultTextStyle.copyWith(color: questionColor);
+
+  TextStyle get questionValidatedTextStyle =>
+      defaultTextStyle.copyWith(color: questionValidatedColor);
 
   QuizzTheme({
     this.defaultTextStyle,
-    this.questionTextStyle,
-    this.questionBackgroundColor,
-    this.questionColor,
-    this.optionBackgroundColor,
-    this.optionColor,
+    this.optionStyle,
+    this.questionColor = Colors.white,
+    this.questionValidatedColor =
+        const Color(0xFF616161) /*Colors.grey.shade700*/,
+    this.questionBackgroundColor = Colors.blueGrey,
+    this.questionValidatedBackgroundColor = Colors.white,
+    this.fabColor = const Color(0xFFD81B60) /* Pink 600 */,
+    this.fabValidatedColor = const Color(0xFF7CB342) /* LightGreen 600*/,
+    this.fabDisabledColor = const Color(0xFFE0E0E0) /* Grey 300*/,
+    this.spinnerColor = Colors.cyan,
   });
+
+  Duration animationDelay({bool isFirst}) =>
+      isFirst ? duration500 : duration150;
+}
+
+class OptionStyle {
+  final TextStyle textStyle;
+  final Color optionBackgroundColor;
+  final Color optionSelectedBackgroundColor;
+  final Color optionCorrectBackgroundColor;
+  final Color optionIncorrectBackgroundColor;
+  final Color optionIncorrectSelectedBackgroundColor;
+  final Color optionColor;
+  final Color optionSelectedColor;
+  final Color optionCorrectColor;
+  final Color optionIncorrectColor;
+  final Color optionIncorrectSelectedColor;
+
+  OptionStyle(
+      {this.optionColor = const Color(0xFF424242) /*Colors.grey.shade800*/,
+      this.optionSelectedColor = Colors.white,
+      this.optionCorrectColor = Colors.white,
+      this.optionIncorrectColor =
+          const Color(0xFF757575) /*Colors.grey.shade600*/,
+      this.optionIncorrectSelectedColor = Colors.white,
+      this.optionBackgroundColor = Colors.white,
+      this.optionSelectedBackgroundColor = Colors.cyan,
+      this.optionCorrectBackgroundColor =
+          const Color(0xFF388E3C) /*Colors.green.shade700*/,
+      this.optionIncorrectBackgroundColor = Colors.white,
+      this.optionIncorrectSelectedBackgroundColor =
+          const Color(0xFFFF7043) /*Colors.deepOrange.shade400*/,
+      @required this.textStyle});
+
+  Color getBackgroundColor(OptionStatus status) {
+    Color color;
+    switch (status) {
+      case OptionStatus.none:
+        color = optionBackgroundColor;
+        break;
+      case OptionStatus.selected:
+        color = optionSelectedBackgroundColor;
+        break;
+      case OptionStatus.correctAndSelected:
+      case OptionStatus.correctButNotSelected:
+        color = optionCorrectBackgroundColor;
+        break;
+      case OptionStatus.incorrectButSelected:
+        color = optionIncorrectSelectedBackgroundColor;
+        break;
+      case OptionStatus.incorrectNotSelected:
+        color = optionIncorrectBackgroundColor;
+        break;
+    }
+    return color;
+  }
+
+  Color getColor(OptionStatus status) {
+    Color color;
+    switch (status) {
+      case OptionStatus.none:
+        color = optionColor;
+        break;
+      case OptionStatus.selected:
+        color = optionSelectedColor;
+        break;
+      case OptionStatus.correctAndSelected:
+      case OptionStatus.correctButNotSelected:
+        color = optionCorrectColor;
+        break;
+      case OptionStatus.incorrectButSelected:
+        color = optionIncorrectSelectedColor;
+        break;
+      case OptionStatus.incorrectNotSelected:
+        color = optionIncorrectColor;
+        break;
+    }
+    return color;
+  }
+
+  double getOpacity(OptionStatus status) {
+    double opacity;
+    switch (status) {
+      case OptionStatus.none:
+      case OptionStatus.selected:
+        opacity = 1.0;
+        break;
+      case OptionStatus.correctAndSelected:
+      case OptionStatus.correctButNotSelected:
+        opacity = 1.0;
+        break;
+      case OptionStatus.incorrectButSelected:
+      case OptionStatus.incorrectNotSelected:
+        opacity = 0.5;
+        break;
+    }
+    return opacity;
+  }
 }

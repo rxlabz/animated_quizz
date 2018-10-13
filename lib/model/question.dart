@@ -5,29 +5,29 @@ enum ItemStatus { none, correct, incorrect }
 
 class Question<Q, P> {
   final Q label;
-  final List<Option<P>> propositions;
+  final List<Option<P>> options;
   final List<int> solution;
   final bool allowMultipleSelection;
 
   Iterable<Option<P>> get solutionPropositions =>
-      solution.map((index) => propositions.toList()[index]);
+      solution.map((index) => options.toList()[index]);
 
   const Question({
     @required this.label,
-    @required this.propositions,
+    @required this.options,
     @required this.solution,
     this.allowMultipleSelection = true,
   });
 
   bool isSelectionCorrect(List<Option> selection) {
     final _selection =
-        selection.map((p) => propositions.indexOf(p)).toList(growable: false);
-    return listEquals(solution..sort(), _selection..sort());
+        selection.map((p) => options.indexOf(p)).toList(growable: false);
+    return listEquals(List.from(solution)..sort(), _selection..sort());
   }
 
   @override
   String toString() {
-    return 'Question{question: $label, props: $propositions}';
+    return 'Question{question: $label, props: $options}';
   }
 
   @override
@@ -36,8 +36,8 @@ class Question<Q, P> {
       other is Question &&
           runtimeType == other.runtimeType &&
           label == other.label &&
-          listEquals(propositions.toList(), other.propositions);
+          listEquals(options.toList(), other.options);
 
   @override
-  int get hashCode => label.hashCode ^ propositions.hashCode;
+  int get hashCode => label.hashCode ^ options.hashCode;
 }

@@ -28,19 +28,16 @@ const PROPS3 = <Option<String>>[
 
 const questions = [
   Question<String, String>(
-      label: Q1,
-      propositions: PROPS1,
-      solution: [1],
-      allowMultipleSelection: false),
+      label: Q1, options: PROPS1, solution: [1], allowMultipleSelection: false),
   Question<String, String>(
     label: Q2,
-    propositions: PROPS2,
+    options: PROPS2,
     solution: [2, 4],
     allowMultipleSelection: true,
   ),
   Question<String, String>(
     label: Q3,
-    propositions: PROPS3,
+    options: PROPS3,
     solution: [2],
     allowMultipleSelection: false,
   ),

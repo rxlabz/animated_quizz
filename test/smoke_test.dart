@@ -1,5 +1,5 @@
 import 'package:animated_qcm/quizz_app.dart';
-import 'package:animated_qcm/screens/quizz/animated_ui_blocs.dart';
+import 'package:animated_qcm/screens/quizz/quizz_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quiver/time.dart';
@@ -31,8 +31,8 @@ void main() {
     expect(find.text('Validate'), findsOneWidget);
     expect(find.text('Next'), findsNothing);
 
-    await tester.tap(find.byType(PropBloc).last);
-    await tester.tap(find.byType(PropBloc).first);
+    await tester.tap(find.byType(OptionBloc).last);
+    await tester.tap(find.byType(OptionBloc).first);
     await tester.pumpAndSettle(aSecond);
 
     // after prop selection button is enabled
@@ -51,9 +51,9 @@ void main() {
     expect(find.text('Next'), findsNothing);
 
     // select 2 last correct props
-    await tester.tap(find.byType(PropBloc).last);
+    await tester.tap(find.byType(OptionBloc).last);
     await tester.pump();
-    await tester.tap(find.byType(PropBloc).at(1));
+    await tester.tap(find.byType(OptionBloc).at(1));
     await tester.pump();
 
     // validate

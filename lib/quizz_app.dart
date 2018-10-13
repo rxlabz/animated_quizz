@@ -1,10 +1,9 @@
 import 'package:animated_qcm/bloc.dart';
 import 'package:animated_qcm/model.dart';
 import 'package:animated_qcm/screens.dart';
+import 'package:animated_qcm/theme.dart';
 import 'package:flutter/material.dart';
 
-/// application global
-/// gestion navigation
 class QuizzDemoApp extends StatelessWidget {
   final GlobalKey<NavigatorState> _navKey = GlobalKey<NavigatorState>();
 
@@ -22,8 +21,16 @@ class QuizzDemoApp extends StatelessWidget {
 
     final routes = <String, WidgetBuilder>{
       '/home': (_) => HomeScreen(onStart: _launchQuizz),
-      '/quizz': (_) =>
-          QuizzBlocProvider(bloc: _quizzBloc, child: QuizzPlayerScreen()),
+      '/quizz': (BuildContext context) {
+        final textStyle = Theme.of(context).textTheme.title;
+        final theme = QuizzTheme(
+            defaultTextStyle: textStyle,
+            optionStyle: OptionStyle(textStyle: textStyle));
+        return QuizzThemeProvider(
+            theme: theme,
+            child: QuizzBlocProvider(
+                bloc: _quizzBloc, child: QuizzPlayerScreen()));
+      },
     };
 
     return MaterialApp(
@@ -35,8 +42,6 @@ class QuizzDemoApp extends StatelessWidget {
 
   void _launchQuizz() => _navigator.pushNamed('/quizz');
 
-  /// on quizz complete
-  /// displays ResultScreen & reinit the bloc
   void _onQuizzComplete(double score) {
     _navigator.pushReplacement(_buildResultRoute(score));
     _quizzBloc.jump(0);
