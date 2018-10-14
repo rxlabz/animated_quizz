@@ -1,5 +1,6 @@
 import 'package:animated_qcm/model.dart';
 import 'package:flutter/foundation.dart';
+import 'package:quiver/iterables.dart';
 
 enum ItemStatus { none, correct, incorrect }
 
@@ -40,4 +41,15 @@ class Question<Q, P> {
 
   @override
   int get hashCode => label.hashCode ^ options.hashCode;
+
+  factory Question.fromJson(Map<String, dynamic> data) {
+    List<int> solution = List.from(data['solution']);
+    return Question<Q, P>(
+        solution: solution,
+        label: data['question'],
+        options: enumerate(List.from(data['options']))
+            .map<Option<P>>((option) => Option<P>(option.value,
+                correct: solution.contains(option.index)))
+            .toList());
+  }
 }

@@ -9,7 +9,7 @@ import 'mock_quizz.dart';
 void main() {
   testWidgets('Quizz demo app smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(QuizzDemoApp(mockQuestions));
+    await tester.pumpWidget(QuizzDemoApp([mockQuizz]));
 
     // Verify that our counter starts at 0.
     expect(find.text('Quizz'), findsOneWidget);

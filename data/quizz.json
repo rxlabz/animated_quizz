@@ -1,0 +1,62 @@
+[
+  {
+    "id":"1",
+    "title":"Flutter",
+    "description":"A quizz about Flutter",
+    "minimumScore": 50,
+    "questions": [
+      {
+        "question":"Flutter apps are written in...",
+        "options":[
+          "Javascript","Dart","Kotlin"
+        ],
+        "solution":[1],
+        "multipleSelection":false
+      },{
+        "question":"Which widgets allow to listen to user gestures ?",
+        "options":[
+          "GestureWidget","TapWidget","GestureDetector","InkWell","TapDetector"
+        ],
+        "solution":[2,3],
+        "multipleSelection":true
+      },{
+        "question":"Which widget displays a menu when pressed and calls onSelected when the menu is dismissed because an item was selected?",
+        "options":[
+          "Popup","MenuManager","PopupMenuButton","MenuViewer","MenuWidget"
+        ],
+        "solution":[2],
+        "multipleSelection":true
+      }
+    ]
+  },
+  {
+    "id":"2",
+    "title":"Dart",
+    "description":"A quizz about Dart",
+    "minimumScore": 50,
+    "questions": [
+      {
+        "question":"Dart can be used...",
+        "options":[
+          "Javascript","Dart","Kotlin"
+        ],
+        "solution":[1],
+        "multipleSelection":false
+      },{
+        "question":"Which widgets allow to listen to user gestures ?",
+        "options":[
+          "GestureWidget","TapWidget","GestureDetector","InkWell","TapDetector"
+        ],
+        "solution":[2,3],
+        "multipleSelection":true
+      },{
+        "question":"Which widget displays a menu when pressed and calls onSelected when the menu is dismissed because an item was selected?",
+        "options":[
+          "Popup","MenuManager","PopupMenuButton","MenuViewer","MenuWidget"
+        ],
+        "solution":[2],
+        "multipleSelection":true
+      }
+    ]
+  }
+]

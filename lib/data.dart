@@ -1,5 +1,4 @@
-import 'package:animated_qcm/model.dart';
-
+/*
 const Q1 = 'Flutter apps are written in...';
 const PROPS1 = <Option<String>>[
   Option('Javascript', correct: false),
@@ -16,8 +15,8 @@ const PROPS2 = <Option<String>>[
   Option('GestureDetector', correct: true),
 ];
 
-const Q3 =
-    "Which widget displays a menu when pressed and calls onSelected when the menu is dismissed because an item was selected?";
+const Q3 = "Which widget displays a menu when pressed and calls onSelected "
+    "when the menu is dismissed because an item was selected?";
 const PROPS3 = <Option<String>>[
   Option('Popup', correct: false),
   Option('MenuManager', correct: false),
@@ -42,3 +41,4 @@ const questions = [
     allowMultipleSelection: false,
   ),
 ];
+*/

@@ -17,7 +17,7 @@ TODO => automatiser update quizzState
 ou au moins réagir aux streams => flux d'update
 */
 class QuizzBloc {
-  QuizzBloc(this.questions, {int currentIndex = 0}) {
+  QuizzBloc(this._questions, {int currentIndex = 0}) {
     final state = initState(currentIndex);
 
     _quizzStateStreamer = BehaviorSubject<QuizzState>(seedValue: state);
@@ -29,17 +29,9 @@ class QuizzBloc {
 
     _goToQuestionSubscription =
         _goToQuestionStreamer.stream.listen(_onIndexChange);
-
-    _initZipStream();
   }
 
-  //ZipStream<> _zippedQuizzState;
-
-  void _initZipStream() {
-    //_zippedQuizzState = new ZipStream([streams], zipper)
-  }
-
-  final List<Question<String, String>> questions;
+  List<Question<String, String>> _questions;
 
   /// abonnement au flux de selection
   /// de l'utilisateur pour la question en cours
@@ -102,12 +94,12 @@ class QuizzBloc {
     _quizzState = QuizzState(
       currentIndex: currentIndex,
       validated: false,
-      currentQuestion: questions[currentIndex],
+      currentQuestion: _questions[currentIndex],
       selection: [],
-      questionCount: questions.length,
+      questionCount: _questions.length,
       pageStatus: ItemStatus.none,
       score: 0,
-      options: questions[currentIndex].options,
+      options: _questions[currentIndex].options,
     );
 
     return _quizzState;
@@ -167,11 +159,11 @@ class QuizzBloc {
     currentIndex += indexChange;
 
     // terminé
-    if (currentIndex == questions.length) {
+    if (currentIndex == _questions.length) {
       _quizzState = _quizzState.copyWith(currentIndex: currentIndex);
     } else {
       final question =
-          currentIndex == questions.length ? null : questions[currentIndex];
+          currentIndex == _questions.length ? null : _questions[currentIndex];
       _quizzState = _quizzState.copyWith(
         currentIndex: currentIndex,
         currentQuestion: question,
@@ -188,12 +180,12 @@ class QuizzBloc {
     _quizzState = QuizzState(
       currentIndex: 0,
       validated: false,
-      currentQuestion: questions[0],
+      currentQuestion: _questions[0],
       selection: [],
-      questionCount: questions.length,
+      questionCount: _questions.length,
       pageStatus: ItemStatus.none,
       score: 0,
-      options: questions[0].options,
+      options: _questions[0].options,
     );
     _quizzStateStreamer.add(_quizzState);
   }

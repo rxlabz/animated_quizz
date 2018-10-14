@@ -1,14 +1,10 @@
-# animated_qcm
+# animated quizz
 
-## Dev log
-
-1. naive
-2. animController
-2. animController + Bloc
+example of quizz app with animated elements
 
 ## Todos
 
-- [ ] QuizzTheme + Provider
+- [x] QuizzTheme + Provider
 - [ ] StaggeredStack
 
 ## articles

@@ -1,5 +1,6 @@
 import 'package:animated_qcm/model.dart';
 import 'package:animated_qcm/theme.dart';
+import 'package:animated_qcm/utils.dart';
 import 'package:flutter/material.dart';
 
 class AnimatedBloc extends StatelessWidget {
@@ -95,21 +96,25 @@ class OptionBloc extends TextBloc {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     final theme = QuizzThemeProvider.of(context);
     final textStyle = theme.defaultTextStyle.copyWith(color: color);
-
+    final textHeight = computeTextHeight(
+        text: text, style: textStyle, width: width - 4 * padding);
     return InkWell(
       child: Opacity(
         opacity: opacity,
-        child: roundedContainer(
-            child: Row(
-              children: <Widget>[
-                _buildIcon(color),
-                Text(text, style: textStyle),
-              ],
-            ),
-            backgroundColor: backgroundColor,
-            padding: padding),
+        child: Stack(children: [
+          ConstrainedBox(
+            constraints:
+                BoxConstraints.expand(height: textHeight + 2 * padding),
+            child: roundedContainer(
+                child: Text(text, style: textStyle),
+                backgroundColor: backgroundColor,
+                padding: padding),
+          ),
+          Positioned(right: -4.0, top: padding, child: _buildIcon(color))
+        ]),
       ),
       onTap: inactive ? null : () => onSelection(option),
     );
@@ -118,6 +123,15 @@ class OptionBloc extends TextBloc {
   Widget _buildIcon(Color color) => correct
       ? Padding(
           padding: const EdgeInsets.only(right: 8.0),
-          child: Icon(Icons.check, color: color))
+          child: Container(
+            padding: margin4,
+            decoration:
+                BoxDecoration(shape: BoxShape.circle, color: Colors.lime),
+            child: Icon(
+              Icons.check,
+              color: color,
+              size: 16.0,
+            ),
+          ))
       : SizedBox();
 }

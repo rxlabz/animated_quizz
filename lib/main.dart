@@ -1,6 +1,10 @@
+import 'package:animated_qcm/quizz_service.dart';
 import 'package:flutter/material.dart';
 
-import 'data.dart';
 import 'quizz_app.dart';
 
-void main() => runApp(QuizzDemoApp(questions));
+void main() async {
+  final quizzs = await QuizzService().loadQuizzs();
+
+  runApp(QuizzDemoApp(quizzs));
+}

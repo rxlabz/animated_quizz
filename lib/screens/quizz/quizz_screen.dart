@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'question_view.dart';
 
 ///
-/// widget d'affichage d'une série de [questions]
+/// widget d'affichage d'une série de [_questions]
 ///
 class QuizzPlayerScreen extends StatelessWidget {
   /// clé globale du widget d'animation de la question utilisée pour lancer

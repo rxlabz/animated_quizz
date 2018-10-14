@@ -1,5 +1,13 @@
 import 'package:animated_qcm/model.dart';
 
+const mockQuizz = Quizz(
+  id: '1',
+  title: 'Quizz',
+  description: 'un quizz',
+  questions: mockQuestions,
+  minimumScore: 60,
+);
+
 const mockQuestions = [
   Question(
     label: "Qui ?",
